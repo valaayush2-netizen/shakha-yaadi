@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>શાખા યાદી | Shakha Yaadi</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f0e8; color: #2c1a0e; min-height: 100vh; }
+
+  .nav { background: #8B1A1A; color: #fff; padding: 0; display: flex; align-items: stretch; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .nav-brand { padding: 14px 20px; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .nav-brand .symbol { font-size: 26px; }
+  .nav-tabs { display: flex; margin-left: auto; }
+  .nav-tab { padding: 0 22px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; border: none; background: transparent; color: rgba(255,255,255,0.8); transition: all 0.2s; border-bottom: 3px solid transparent; }
+  .nav-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .nav-tab.active { color: #FFD700; border-bottom-color: #FFD700; background: rgba(0,0,0,0.15); }
+  .notif-badge { background: #FFD700; color: #8B1A1A; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  .page { display: none; padding: 24px 16px; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  .hero { background: linear-gradient(135deg, #8B1A1A 0%, #5a0f0f 100%); color: #fff; border-radius: 12px; padding: 30px 24px; margin-bottom: 24px; text-align: center; }
+  .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .hero p { font-size: 14px; opacity: 0.85; }
+  .hero-symbols { font-size: 32px; margin-bottom: 10px; letter-spacing: 8px; }
+
+  .card { background: #fff; border-radius: 10px; border: 1px solid #e0d5c5; padding: 20px; margin-bottom: 20px; }
+  .card-title { font-size: 16px; font-weight: 700; color: #8B1A1A; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f5f0e8; display: flex; align-items: center; gap: 8px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 13px; font-weight: 600; color: #5a3a2a; }
+  label .req { color: #c0392b; }
+  input, select, textarea {
+    padding: 9px 12px; border: 1.5px solid #d0c4b0; border-radius: 7px;
+    font-size: 14px; background: #faf8f5; color: #2c1a0e;
+    transition: border-color 0.2s, box-shadow 0.2s; outline: none; font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #8B1A1A; box-shadow: 0 0 0 3px rgba(139,26,26,0.12); }
+  textarea { resize: vertical; min-height: 70px; }
+  .photo-upload { border: 2px dashed #c0a080; border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; background: #faf5ee; transition: all 0.2s; }
+  .photo-upload:hover { border-color: #8B1A1A; background: #fff5ee; }
+  .photo-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #8B1A1A; display: none; margin: 0 auto 8px; }
+  .photo-preview.show { display: block; }
+  .photo-label { font-size: 13px; color: #8B6050; }
+
+  .btn { padding: 11px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: #8B1A1A; color: #fff; }
+  .btn-primary:hover { background: #6b1010; transform: translateY(-1px); }
+  .btn-secondary { background: #f5f0e8; color: #5a3a2a; border: 1px solid #d0c4b0; }
+  .btn-secondary:hover { background: #e8e0d0; }
+  .btn-danger { background: #c0392b; color: #fff; font-size: 12px; padding: 5px 12px; }
+  .btn-danger:hover { background: #a93226; }
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+
+  .toast { position: fixed; top: 20px; right: 20px; background: #27ae60; color: #fff; padding: 14px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 1000; transform: translateX(200%); transition: transform 0.4s; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-width: 300px; }
+  .toast.show { transform: translateX(0); }
+  .toast.error { background: #c0392b; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .stat-card { background: #fff; border-radius: 10px; padding: 16px; text-align: center; border: 1px solid #e0d5c5; }
+  .stat-num { font-size: 32px; font-weight: 700; color: #8B1A1A; }
+  .stat-label { font-size: 12px; color: #8B6050; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .notif-panel { background: #fffbf0; border: 1.5px solid #FFD700; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; max-height: 180px; overflow-y: auto; }
+  .notif-header { font-size: 13px; font-weight: 700; color: #8B6010; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .notif-item { font-size: 13px; color: #5a3a2a; padding: 6px 0; border-bottom: 1px solid #f0e8d0; display: flex; align-items: center; gap: 8px; }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-dot { width: 8px; height: 8px; background: #27ae60; border-radius: 50%; flex-shrink: 0; }
+  .notif-time { font-size: 11px; color: #aaa; margin-left: auto; }
+  .no-notif { font-size: 13px; color: #aaa; text-align: center; padding: 12px 0; }
+
+  .search-bar { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; }
+  .search-bar input { flex: 1; }
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid #e0d5c5; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #8B1A1A; color: #fff; padding: 10px 12px; text-align: left; font-weight: 600; white-space: nowrap; }
+  td { padding: 9px 12px; border-bottom: 1px solid #f0e8d0; vertical-align: middle; }
+  tr:hover td { background: #faf5ee; }
+  tr:last-child td { border-bottom: none; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #8B1A1A; }
+  .avatar-init { width: 36px; height: 36px; border-radius: 50%; background: #8B1A1A; color: #FFD700; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .empty-state { text-align: center; padding: 40px; color: #aaa; }
+  .empty-state .icon { font-size: 48px; margin-bottom: 10px; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .modal-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #8B1A1A; }
+  .modal-avatar-init { width: 64px; height: 64px; border-radius: 50%; background: #8B1A1A; color: #FFD700; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; }
+  .modal-name { font-size: 18px; font-weight: 700; color: #2c1a0e; }
+  .modal-sub { font-size: 13px; color: #8B6050; margin-top: 2px; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .detail-item label { font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+  .detail-item span { font-size: 14px; color: #2c1a0e; font-weight: 500; }
+
+  /* Edit Modal */
+  .edit-modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 600px; width: 100%; max-height: 92vh; overflow-y: auto; }
+  .edit-modal .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .edit-modal .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .edit-modal .form-group.full { grid-column: 1 / -1; }
+  .edit-section-title { font-size: 13px; font-weight: 700; color: #8B1A1A; margin: 14px 0 8px; padding-bottom: 6px; border-bottom: 1px solid #f0e8d0; grid-column: 1/-1; display: flex; align-items: center; gap: 6px; }
+  .btn-edit { background: #2980b9; color: #fff; font-size: 12px; padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+  .btn-edit:hover { background: #1f6391; }
+  .action-btns { display: flex; gap: 6px; }
+
+  /* Admin Login Overlay */
+  .login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 800; align-items: center; justify-content: center; padding: 16px; }
+  .login-overlay.show { display: flex; }
+  .login-box { background: #fff; border-radius: 16px; padding: 36px 28px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+  .login-icon { font-size: 48px; margin-bottom: 10px; }
+  .login-title { font-size: 22px; font-weight: 700; color: #8B1A1A; margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+  .login-input-wrap { position: relative; margin-bottom: 16px; }
+  .login-input-wrap input { width: 100%; padding: 11px 44px 11px 14px; border: 2px solid #d0c4b0; border-radius: 9px; font-size: 15px; background: #faf8f5; color: #2c1a0e; outline: none; transition: border-color 0.2s; font-family: inherit; }
+  .login-input-wrap input:focus { border-color: #8B1A1A; box-shadow: 0 0 0 3px rgba(139,26,26,0.12); }
+  .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: #888; }
+  .login-error { color: #c0392b; font-size: 13px; font-weight: 600; margin-bottom: 12px; display: none; }
+  .login-error.show { display: block; }
+  .login-attempts { font-size: 12px; color: #aaa; margin-top: 10px; }
+  .login-btn { width: 100%; padding: 13px; background: #8B1A1A; color: #fff; border: none; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .login-btn:hover { background: #6b1010; }
+  .login-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .logout-btn { font-size: 12px; padding: 5px 14px; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; cursor: pointer; margin-left: 8px; transition: all 0.2s; }
+  .logout-btn:hover { background: rgba(255,255,255,0.25); }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .nav-brand span.subtitle { display: none; }
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <span class="symbol">🕉️</span>
+    <div>
+      <div style="font-size:17px;font-weight:700;">શાખા યાદી</div>
+      <div class="subtitle" style="font-size:11px;opacity:0.75;font-weight:400;">સ્વયંસેવક નોંધણી</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('register', this)">📝 નોંધણી</button>
+    <button class="nav-tab" onclick="handleAdminClick(this)" id="adminTab">
+      🛡️ એડમિન
+      <span class="notif-badge" id="notifCount" style="display:none;">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- નોંધણી પાનું -->
+<div class="page active" id="page-register">
+  <div class="hero">
+    <div class="hero-symbols">🕉️ ☀️ 🪷</div>
+    <h1>સ્વયંસેવક નોંધણી</h1>
+    <p>Swayamsevak Registration Form — શાખા યાદીમાં નામ નોંધાવો</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📸 ફોટો અપલોડ કરો</div>
+    <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+      <img id="photoPreview" class="photo-preview" src="" alt="ફોટો">
+      <div class="photo-label" id="photoLabel">
+        📷 અહીં ક્લિક કરો અને ફોટો પસંદ કરો<br>
+        <small style="color:#aaa;">(JPG, PNG — મહત્તમ 5MB)</small>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="handlePhoto(this)">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👤 વ્યક્તિગત માહિતી</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>પૂરું નામ <span class="req">*</span></label>
+        <input type="text" id="name" placeholder="દા.ત. રાહુલ દેસાઈ">
+      </div>
+      <div class="form-group">
+        <label>જન્મ તારીખ <span class="req">*</span></label>
+        <input type="date" id="dob">
+      </div>
+      <div class="form-group">
+        <label>ઉંમર (Age)</label>
+        <input type="text" id="age" placeholder="આપોઆપ ભરાશે" readonly style="background:#f0ece8;">
+      </div>
+      <div class="form-group">
+        <label>લોહીનો ગ્રૂપ (Blood Group)</label>
+        <select id="blood">
+          <option value="">પસંદ કરો...</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>O+</option><option>O-</option>
+          <option>AB+</option><option>AB-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>મોબાઈલ નંબર <span class="req">*</span></label>
+        <input type="tel" id="mobile" placeholder="10 આંકડાનો નંબર" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label>વૈકલ્પિક મોબાઈલ</label>
+        <input type="tel" id="altMobile" placeholder="બીજો નંબર (વૈકલ્પિક)" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label>ઈ-મેઈલ (Email)</label>
+        <input type="email" id="email" placeholder="example@email.com">
+      </div>
+      <div class="form-group">
+        <label>વ્યવસાય / શિક્ષણ</label>
+        <input type="text" id="occupation" placeholder="દા.ત. વિદ્યાર્થી, શિક્ષક, વ્યાપારી">
+      </div>
+      <div class="form-group full">
+        <label>સરનામું <span class="req">*</span></label>
+        <textarea id="address" placeholder="મકાન નં., શેરી, વિસ્તાર, શહેર, જિલ્લો, પિન કોડ"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌿 શાખા માહિતી</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>શાખાનું નામ</label>
+        <input type="text" id="shakhaName" placeholder="દા.ત. વિજય શાખા, કેશવ શાખા">
+      </div>
+      <div class="form-group">
+        <label>શાખાનું સ્થળ</label>
+        <input type="text" id="shakhaLocation" placeholder="દા.ત. જવાહર મેદાન, વોર્ડ નં. ૫">
+      </div>
+      <div class="form-group">
+        <label>શાખામાં કેટલા વર્ષથી?</label>
+        <input type="number" id="yearsInShakha" placeholder="વર્ષ" min="0" max="80">
+      </div>
+      <div class="form-group">
+        <label>સ્તર (Level)</label>
+        <select id="level">
+          <option value="">પસંદ કરો...</option>
+          <option>બાળ</option>
+          <option>તરુણ</option>
+          <option>યુવા</option>
+          <option>પ્રૌઢ</option>
+          <option>વરિષ્ઠ</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>વિશેષ કૌશલ્ય / યોગદાન</label>
+        <textarea id="skills" placeholder="દા.ત. રમતગમત, સેવાકાર્ય, સંગીત, પ્રાથમિક સારવાર..." style="min-height:55px;"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left: 4px solid #8B1A1A;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="consent" style="width:18px;height:18px;accent-color:#8B1A1A;">
+      <label for="consent" style="font-size:13px;color:#5a3a2a;cursor:pointer;">
+        હું ઉપરની માહિતી સાચી હોવાનું સ્વીકારું છું અને શાખા યાદીમાં નોંધણી કરાવવાની સંમતિ આપું છું.
+      </label>
+    </div>
+  </div>
+
+  <div class="form-actions" style="margin-bottom:30px;">
+    <button class="btn btn-secondary" onclick="resetForm()">🔄 રદ કરો</button>
+    <button class="btn btn-primary" onclick="submitForm()">✅ નોંધણી સબમિટ કરો</button>
+  </div>
+</div>
+
+<!-- એડમિન પાનું -->
+<div class="page" id="page-admin">
+  <div class="hero" style="padding:20px 24px;text-align:left;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:22px;font-weight:700;">🛡️ એડમિન — શાખા યાદી</div>
+      <div style="font-size:13px;opacity:0.8;margin-top:2px;">Real-time સ્વયંસેવક નોંધ</div>
+    </div>
+    <button class="btn" style="background:#FFD700;color:#5a0f0f;font-weight:700;" onclick="exportExcel()">📊 Excel ડાઉનલોડ</button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label">કુલ સ્વયંસેવક</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statToday">0</div>
+      <div class="stat-label">આજની નોંધણી</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statNew">0</div>
+      <div class="stat-label">નવી સૂચના</div>
+    </div>
+  </div>
+
+  <div class="notif-panel" id="notifPanel">
+    <div class="notif-header">🔔 નવી સૂચનાઓ (Real-time Notifications)</div>
+    <div id="notifList"><div class="no-notif">હજુ કોઈ નોંધણી નથી...</div></div>
+  </div>
+
+  <div class="card" style="padding:16px;">
+    <div class="card-title">📋 સ્વયંસેવક યાદી</div>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 નામ, મોબાઈલ, શાખા શોધો..." oninput="renderTable()">
+      <select id="filterLevel" onchange="renderTable()" style="width:160px;">
+        <option value="">બધા સ્તર</option>
+        <option>બાળ</option><option>તરુણ</option><option>યુવા</option><option>પ્રૌઢ</option><option>વરિષ્ઠ</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table id="memberTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ફોટો</th>
+            <th>નામ</th>
+            <th>મોબાઈલ</th>
+            <th>જન્મ તારીખ</th>
+            <th>લોહી ગ્રૂપ</th>
+            <th>શાખા</th>
+            <th>સ્તર</th>
+            <th>નોંધણી સમય</th>
+            <th>ક્રિયા</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- વિગત Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editOverlay" onclick="closeEditModal(event)">
+  <div class="edit-modal" id="editModalContent">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:18px;font-weight:700;color:#8B1A1A;">✏️ સ્વયંસેવક માહિતી સુધારો</div>
+      <button class="btn btn-secondary" style="padding:6px 14px;font-size:13px;" onclick="closeEditModal()">✕</button>
+    </div>
+
+    <!-- Photo -->
+    <div style="text-align:center;margin-bottom:16px;">
+      <div class="photo-upload" onclick="document.getElementById('editPhotoInput').click()" style="max-width:220px;margin:0 auto;">
+        <img id="editPhotoPreview" class="photo-preview" src="" alt="ફોટો">
+        <div class="photo-label" id="editPhotoLabel">📷 ફોટો બદલો</div>
+        <input type="file" id="editPhotoInput" accept="image/*" style="display:none;" onchange="handleEditPhoto(this)">
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="edit-section-title">👤 વ્યક્તિગત માહિતી</div>
+
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">પૂરું નામ <span style="color:#c0392b;">*</span></label>
+        <input type="text" id="editName">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">જન્મ તારીખ</label>
+        <input type="date" id="editDob" onchange="calcEditAge()">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">ઉંમર</label>
+        <input type="text" id="editAge" readonly style="background:#f0ece8;">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">લોહીનો ગ્રૂપ</label>
+        <select id="editBlood">
+          <option value="">પસંદ કરો...</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">મોબાઈલ નંબર <span style="color:#c0392b;">*</span></label>
+        <input type="tel" id="editMobile" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">વૈકલ્પિક મોબાઈલ</label>
+        <input type="tel" id="editAltMobile" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">ઈ-મેઈલ</label>
+        <input type="email" id="editEmail">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">વ્યવસાય / શિક્ષણ</label>
+        <input type="text" id="editOccupation">
+      </div>
+      <div class="form-group full">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">સરનામું <span style="color:#c0392b;">*</span></label>
+        <textarea id="editAddress" style="min-height:60px;"></textarea>
+      </div>
+
+      <div class="edit-section-title">🌿 શાખા માહિતી</div>
+
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">શાખાનું નામ</label>
+        <input type="text" id="editShakhaName">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">શાખાનું સ્થળ</label>
+        <input type="text" id="editShakhaLocation">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">શાખામાં કેટલા વર્ષ?</label>
+        <input type="number" id="editYearsInShakha" min="0" max="80">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">સ્તર</label>
+        <select id="editLevel">
+          <option value="">પસંદ કરો...</option>
+          <option>બાળ</option><option>તરુણ</option><option>યુવા</option><option>પ્રૌઢ</option><option>વરિષ્ઠ</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label style="font-size:12px;font-weight:600;color:#5a3a2a;">વિશેષ કૌશલ્ય / યોગદાન</label>
+        <textarea id="editSkills" style="min-height:55px;"></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="closeEditModal()">રદ કરો</button>
+      <button class="btn" style="background:#c0392b;color:#fff;" onclick="deleteFromEdit()">🗑️ કાઢી નાખો</button>
+      <button class="btn btn-primary" onclick="saveEdit()">💾 ફેરફાર સાચવો</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login Overlay -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-icon">🛡️</div>
+    <div class="login-title">એડમિન લૉગિન</div>
+    <div class="login-sub">Admin access only — પાસવર્ડ દાખલ કરો</div>
+    <div class="login-error" id="loginError">❌ ખોટો પાસવર્ડ! ફરી પ્રયાસ કરો.</div>
+    <div class="login-input-wrap">
+      <input type="password" id="adminPwInput" placeholder="પાસવર્ડ..." onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="toggle-pw" onclick="togglePwVisibility()" id="togglePwBtn" title="Show/Hide">👁️</button>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">🔓 પ્રવેશ કરો</button>
+    <button style="width:100%;margin-top:10px;padding:10px;background:#f5f0e8;color:#5a3a2a;border:1px solid #d0c4b0;border-radius:9px;font-size:14px;cursor:pointer;" onclick="cancelLogin()">રદ કરો</button>
+    <div class="login-attempts" id="loginAttempts"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const DB_KEY = 'shakha_yaadi_gu_v1';
+let records = [];
+let newNotifCount = 0;
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    records = raw ? JSON.parse(raw) : [];
+  } catch(e) { records = []; }
+}
+
+function saveData() {
+  localStorage.setItem(DB_KEY, JSON.stringify(records));
+}
+
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  if (page === 'admin') {
+    newNotifCount = 0;
+    document.getElementById('notifCount').style.display = 'none';
+    updateAdmin();
+  }
+}
+
+document.getElementById('dob').addEventListener('change', function() {
+  if (!this.value) return;
+  const dob = new Date(this.value);
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  document.getElementById('age').value = age > 0 ? age + ' વર્ષ' : '';
+});
+
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('ફોટો 5MB કરતાં નાનો હોવો જોઈએ!', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('photoPreview').src = e.target.result;
+    document.getElementById('photoPreview').classList.add('show');
+    document.getElementById('photoLabel').innerHTML = '✅ ફોટો પસંદ થઈ ગયો';
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitForm() {
+  const name = document.getElementById('name').value.trim();
+  const dob = document.getElementById('dob').value;
+  const mobile = document.getElementById('mobile').value.trim();
+  const address = document.getElementById('address').value.trim();
+  const consent = document.getElementById('consent').checked;
+
+  if (!name) { showToast('કૃપા કરી નામ દાખલ કરો!', 'error'); document.getElementById('name').focus(); return; }
+  if (!dob) { showToast('કૃપા કરી જન્મ તારીખ દાખલ કરો!', 'error'); return; }
+  if (!mobile || mobile.length !== 10) { showToast('કૃપા કરી 10 આંકડાનો મોબાઈલ નંબર દાખલ કરો!', 'error'); return; }
+  if (!address) { showToast('કૃપા કરી સરનામું દાખલ કરો!', 'error'); return; }
+  if (!consent) { showToast('કૃપા કરી સંમતિ આપો!', 'error'); return; }
+
+  const photoSrc = document.getElementById('photoPreview').src || '';
+  const now = new Date();
+
+  const record = {
+    id: Date.now(),
+    name, dob, mobile,
+    altMobile: document.getElementById('altMobile').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    blood: document.getElementById('blood').value,
+    age: document.getElementById('age').value,
+    occupation: document.getElementById('occupation').value.trim(),
+    address,
+    shakhaName: document.getElementById('shakhaName').value.trim(),
+    shakhaLocation: document.getElementById('shakhaLocation').value.trim(),
+    yearsInShakha: document.getElementById('yearsInShakha').value,
+    level: document.getElementById('level').value,
+    skills: document.getElementById('skills').value.trim(),
+    photo: photoSrc.startsWith('data:') ? photoSrc : '',
+    registeredAt: now.toISOString(),
+    registeredAtStr: now.toLocaleString('gu-IN', {dateStyle:'short', timeStyle:'short'})
+  };
+
+  records.unshift(record);
+  saveData();
+
+  newNotifCount++;
+  document.getElementById('notifCount').textContent = newNotifCount;
+  document.getElementById('notifCount').style.display = 'flex';
+
+  showToast('🎉 નોંધણી સફળ! ' + name + ' ની શાખા યાદીમાં નોંધ થઈ ગઈ.');
+  resetForm();
+}
+
+function resetForm() {
+  ['name','dob','age','mobile','altMobile','email','occupation','address','shakhaName','shakhaLocation','yearsInShakha','skills'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('blood').value = '';
+  document.getElementById('level').value = '';
+  document.getElementById('consent').checked = false;
+  document.getElementById('photoPreview').classList.remove('show');
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('photoLabel').innerHTML = '📷 અહીં ક્લિક કરો અને ફોટો પસંદ કરો<br><small style="color:#aaa;">(JPG, PNG — મહત્તમ 5MB)</small>';
+  document.getElementById('photoInput').value = '';
+}
+
+function updateAdmin() {
+  const total = records.length;
+  const today = new Date().toDateString();
+  const todayCount = records.filter(r => new Date(r.registeredAt).toDateString() === today).length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statToday').textContent = todayCount;
+  document.getElementById('statNew').textContent = newNotifCount;
+
+  const notifList = document.getElementById('notifList');
+  const recent = records.slice(0, 10);
+  if (recent.length === 0) {
+    notifList.innerHTML = '<div class="no-notif">હજુ કોઈ નોંધણી નથી...</div>';
+  } else {
+    notifList.innerHTML = recent.map(r => `
+      <div class="notif-item">
+        <div class="notif-dot"></div>
+        <span><strong>${r.name}</strong> એ નોંધણી કરી ${r.shakhaName ? '— ' + r.shakhaName : ''}</span>
+        <span class="notif-time">${r.registeredAtStr}</span>
+      </div>
+    `).join('');
+  }
+  renderTable();
+}
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const filterLevel = document.getElementById('filterLevel').value;
+
+  let filtered = records.filter(r => {
+    const matchSearch = !search ||
+      r.name.toLowerCase().includes(search) ||
+      r.mobile.includes(search) ||
+      (r.shakhaName && r.shakhaName.toLowerCase().includes(search));
+    const matchLevel = !filterLevel || r.level === filterLevel;
+    return matchSearch && matchLevel;
+  });
+
+  const tbody = document.getElementById('tableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="icon">📋</div><div>કોઈ નોંધણી મળી નહીં</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((r, i) => `
+    <tr style="cursor:pointer;" onclick="showDetail('${r.id}')">
+      <td>${i + 1}</td>
+      <td>${r.photo ? `<img class="avatar" src="${r.photo}" alt="">` : `<div class="avatar-init">${r.name.charAt(0)}</div>`}</td>
+      <td><strong>${r.name}</strong></td>
+      <td>${r.mobile}</td>
+      <td>${r.dob ? new Date(r.dob).toLocaleDateString('gu-IN') : '-'}</td>
+      <td>${r.blood || '-'}</td>
+      <td>${r.shakhaName || '-'}</td>
+      <td>${r.level || '-'}</td>
+      <td style="font-size:12px;color:#888;">${r.registeredAtStr}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-edit" onclick="event.stopPropagation();openEditModal('${r.id}')">✏️ સુધારો</button>
+          <button class="btn btn-danger" onclick="event.stopPropagation();deleteRecord('${r.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function showDetail(id) {
+  const r = records.find(rec => rec.id == id);
+  if (!r) return;
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-header">
+      ${r.photo ? `<img class="modal-avatar" src="${r.photo}" alt="">` : `<div class="modal-avatar-init">${r.name.charAt(0)}</div>`}
+      <div>
+        <div class="modal-name">${r.name}</div>
+        <div class="modal-sub">${r.shakhaName || 'શાખા માહિતી નથી'} ${r.level ? '· ' + r.level : ''}</div>
+      </div>
+    </div>
+    <div class="detail-grid" style="margin-bottom:16px;">
+      <div class="detail-item"><label>મોબાઈલ</label><span>${r.mobile}</span></div>
+      <div class="detail-item"><label>જન્મ તારીખ</label><span>${r.dob ? new Date(r.dob).toLocaleDateString('gu-IN') : '-'}</span></div>
+      <div class="detail-item"><label>ઉંમર</label><span>${r.age || '-'}</span></div>
+      <div class="detail-item"><label>લોહી ગ્રૂપ</label><span>${r.blood || '-'}</span></div>
+      <div class="detail-item"><label>ઈ-મેઈલ</label><span>${r.email || '-'}</span></div>
+      <div class="detail-item"><label>વૈકલ્પિક મોબાઈલ</label><span>${r.altMobile || '-'}</span></div>
+      <div class="detail-item"><label>વ્યવસાય</label><span>${r.occupation || '-'}</span></div>
+      <div class="detail-item"><label>શાખામાં વર્ષ</label><span>${r.yearsInShakha || '-'}</span></div>
+      <div class="detail-item" style="grid-column:1/-1;"><label>સરનામું</label><span>${r.address}</span></div>
+      <div class="detail-item" style="grid-column:1/-1;"><label>કૌશલ્ય / યોગદાન</label><span>${r.skills || '-'}</span></div>
+      <div class="detail-item" style="grid-column:1/-1;"><label>નોંધણી સમય</label><span>${r.registeredAtStr}</span></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="closeModal()">બંધ કરો ✕</button>
+      <button class="btn" style="background:#c0392b;color:#fff;font-size:13px;padding:8px 16px;" onclick="closeModal();deleteRecord('${r.id}')">🗑️ કાઢી નાખો</button>
+      <button class="btn btn-primary" style="font-size:13px;padding:8px 16px;" onclick="closeModal();openEditModal('${r.id}')">✏️ સુધારો</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+}
+
+function deleteRecord(id) {
+  if (!confirm('આ સ્વયંસેવકને યાદીમાંથી કાઢી નાખવા?')) return;
+  records = records.filter(r => r.id != id);
+  saveData();
+  updateAdmin();
+  showToast('નોંધ કાઢી નાખવામાં આવી.');
+}
+
+function exportExcel() {
+  if (records.length === 0) { showToast('યાદી ખાલી છે!', 'error'); return; }
+
+  // Build data rows
+  const headers = ['#','નામ','મોબાઈલ','વૈકલ્પિક મોબાઈલ','જન્મ તારીખ','ઉંમર','લોહી ગ્રૂપ','ઈ-મેઈલ','સરનામું','શાખા','શાખા સ્થળ','સ્તર','શાખામાં વર્ષ','વ્યવસાય','કૌશલ્ય','નોંધણી સમય'];
+  const rows = records.map((r, i) => [
+    i + 1,
+    r.name,
+    r.mobile,
+    r.altMobile || '',
+    r.dob ? new Date(r.dob).toLocaleDateString('en-IN') : '',
+    r.age || '',
+    r.blood || '',
+    r.email || '',
+    r.address,
+    r.shakhaName || '',
+    r.shakhaLocation || '',
+    r.level || '',
+    r.yearsInShakha || '',
+    r.occupation || '',
+    r.skills || '',
+    r.registeredAtStr
+  ]);
+
+  const wsData = [headers, ...rows];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths
+  ws['!cols'] = [
+    {wch:4},{wch:22},{wch:14},{wch:14},{wch:13},{wch:8},{wch:12},
+    {wch:24},{wch:32},{wch:18},{wch:18},{wch:10},{wch:14},{wch:18},{wch:28},{wch:18}
+  ];
+
+  // Style header row (bold + background) using cell format
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let C = range.s.c; C <= range.e.c; C++) {
+    const cellAddr = XLSX.utils.encode_cell({r: 0, c: C});
+    if (!ws[cellAddr]) continue;
+    ws[cellAddr].s = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 12 },
+      fill: { fgColor: { rgb: '8B1A1A' } },
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+      border: {
+        bottom: { style: 'thin', color: { rgb: 'CCCCCC' } },
+        right: { style: 'thin', color: { rgb: 'CCCCCC' } }
+      }
+    };
+  }
+
+  // Style data rows alternating
+  for (let R = 1; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
+      if (!ws[cellAddr]) ws[cellAddr] = {t:'s', v:''};
+      ws[cellAddr].s = {
+        fill: { fgColor: { rgb: R % 2 === 0 ? 'FFF8F0' : 'FFFFFF' } },
+        alignment: { vertical: 'center', wrapText: false },
+        border: {
+          bottom: { style: 'hair', color: { rgb: 'E0D5C5' } },
+          right: { style: 'hair', color: { rgb: 'E0D5C5' } }
+        }
+      };
+    }
+  }
+
+  ws['!freeze'] = { xSplit: 0, ySplit: 1 }; // Freeze header row
+
+  XLSX.utils.book_append_sheet(wb, ws, 'શાખા યાદી');
+
+  // Summary sheet
+  const today = new Date().toDateString();
+  const todayCount = records.filter(r => new Date(r.registeredAt).toDateString() === today).length;
+  const levelCounts = {};
+  records.forEach(r => { if(r.level) levelCounts[r.level] = (levelCounts[r.level]||0)+1; });
+  const summaryData = [
+    ['શાખા યાદી — સારાંશ', ''],
+    ['', ''],
+    ['કુલ સ્વયંસેવક', records.length],
+    ['આજની નોંધણી', todayCount],
+    ['', ''],
+    ['સ્તર મુજબ વિભાજન', ''],
+    ...Object.entries(levelCounts).map(([k,v]) => [k, v]),
+    ['', ''],
+    ['ડાઉનલોડ સમય', new Date().toLocaleString('gu-IN')]
+  ];
+  const ws2 = XLSX.utils.aoa_to_sheet(summaryData);
+  ws2['!cols'] = [{wch:28},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'સારાંશ');
+
+  const fname = 'shakha_yaadi_' + new Date().toLocaleDateString('en-IN').replace(/\//g,'-') + '.xlsx';
+  XLSX.writeFile(wb, fname);
+  showToast('📊 Excel ફાઇલ ડાઉનલોડ થઈ ગઈ!');
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type === 'error' ? ' error' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ===== EDIT MODAL =====
+let editingId = null;
+
+function openEditModal(id) {
+  const r = records.find(rec => rec.id == id);
+  if (!r) return;
+  editingId = r.id;
+
+  document.getElementById('editName').value = r.name || '';
+  document.getElementById('editDob').value = r.dob || '';
+  document.getElementById('editAge').value = r.age || '';
+  document.getElementById('editBlood').value = r.blood || '';
+  document.getElementById('editMobile').value = r.mobile || '';
+  document.getElementById('editAltMobile').value = r.altMobile || '';
+  document.getElementById('editEmail').value = r.email || '';
+  document.getElementById('editOccupation').value = r.occupation || '';
+  document.getElementById('editAddress').value = r.address || '';
+  document.getElementById('editShakhaName').value = r.shakhaName || '';
+  document.getElementById('editShakhaLocation').value = r.shakhaLocation || '';
+  document.getElementById('editYearsInShakha').value = r.yearsInShakha || '';
+  document.getElementById('editLevel').value = r.level || '';
+  document.getElementById('editSkills').value = r.skills || '';
+
+  const prev = document.getElementById('editPhotoPreview');
+  if (r.photo) {
+    prev.src = r.photo;
+    prev.classList.add('show');
+    document.getElementById('editPhotoLabel').innerHTML = '✅ ફોટો છે — બદલવા ક્લિક કરો';
+  } else {
+    prev.src = '';
+    prev.classList.remove('show');
+    document.getElementById('editPhotoLabel').innerHTML = '📷 ફોટો ઉમેરો';
+  }
+
+  document.getElementById('editOverlay').classList.add('show');
+  document.getElementById('editName').focus();
+}
+
+function closeEditModal(e) {
+  if (!e || e.target === document.getElementById('editOverlay')) {
+    document.getElementById('editOverlay').classList.remove('show');
+    editingId = null;
+  }
+}
+
+function handleEditPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('ફોટો 5MB કરતાં નાનો હોવો જોઈએ!', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('editPhotoPreview').src = e.target.result;
+    document.getElementById('editPhotoPreview').classList.add('show');
+    document.getElementById('editPhotoLabel').innerHTML = '✅ નવો ફોટો પસંદ થઈ ગયો';
+  };
+  reader.readAsDataURL(file);
+}
+
+function calcEditAge() {
+  const dob = document.getElementById('editDob').value;
+  if (!dob) return;
+  const d = new Date(dob), today = new Date();
+  let age = today.getFullYear() - d.getFullYear();
+  const m = today.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+  document.getElementById('editAge').value = age > 0 ? age + ' વર્ષ' : '';
+}
+
+function saveEdit() {
+  const name = document.getElementById('editName').value.trim();
+  const mobile = document.getElementById('editMobile').value.trim();
+  const address = document.getElementById('editAddress').value.trim();
+
+  if (!name) { showToast('કૃપા કરી નામ દાખલ કરો!', 'error'); document.getElementById('editName').focus(); return; }
+  if (!mobile || mobile.length !== 10) { showToast('કૃપા કરી 10 આંકડાનો મોબાઈલ નંબર દાખલ કરો!', 'error'); return; }
+  if (!address) { showToast('કૃપા કરી સરનામું દાખલ કરો!', 'error'); return; }
+
+  const idx = records.findIndex(r => r.id == editingId);
+  if (idx === -1) { showToast('નોંધ મળી નહીં!', 'error'); return; }
+
+  const photoSrc = document.getElementById('editPhotoPreview').src;
+
+  records[idx] = {
+    ...records[idx],
+    name,
+    dob: document.getElementById('editDob').value,
+    age: document.getElementById('editAge').value,
+    blood: document.getElementById('editBlood').value,
+    mobile,
+    altMobile: document.getElementById('editAltMobile').value.trim(),
+    email: document.getElementById('editEmail').value.trim(),
+    occupation: document.getElementById('editOccupation').value.trim(),
+    address,
+    shakhaName: document.getElementById('editShakhaName').value.trim(),
+    shakhaLocation: document.getElementById('editShakhaLocation').value.trim(),
+    yearsInShakha: document.getElementById('editYearsInShakha').value,
+    level: document.getElementById('editLevel').value,
+    skills: document.getElementById('editSkills').value.trim(),
+    photo: photoSrc && photoSrc.startsWith('data:') ? photoSrc : (records[idx].photo || ''),
+    updatedAt: new Date().toISOString()
+  };
+
+  saveData();
+  updateAdmin();
+  closeEditModal();
+  showToast('✅ ' + name + ' ની માહિતી સુધારી ગઈ!');
+}
+
+function deleteFromEdit() {
+  if (!confirm('આ સ્વયંસેવકને યાદીમાંથી કાઢી નાખવા?')) return;
+  records = records.filter(r => r.id != editingId);
+  saveData();
+  updateAdmin();
+  closeEditModal();
+  showToast('નોંધ કાઢી નાખવામાં આવી.');
+}
+// ===== END EDIT MODAL =====
+
+// ===== ADMIN AUTH =====
+const ADMIN_PASSWORD = 'Shakha@2025'; // ← પાસવર્ડ બદલો
+const AUTH_KEY = 'shakha_admin_auth';
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 10;
+let pendingAdminTab = null;
+
+function isAdminLoggedIn() {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null');
+    return d && d.auth === true && Date.now() < d.expiry;
+  } catch(e) { return false; }
+}
+
+function setAdminLoggedIn() {
+  sessionStorage.setItem(AUTH_KEY, JSON.stringify({ auth: true, expiry: Date.now() + 60 * 60 * 1000 }));
+}
+
+function logoutAdmin() {
+  sessionStorage.removeItem(AUTH_KEY);
+  showPage('register', document.querySelector('.nav-tab'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.nav-tab').classList.add('active');
+  updateLogoutBtn();
+  showToast('લૉગ આઉટ થઈ ગયા.');
+}
+
+function updateLogoutBtn() {
+  const existing = document.getElementById('logoutBtn');
+  if (isAdminLoggedIn()) {
+    if (!existing) {
+      const btn = document.createElement('button');
+      btn.id = 'logoutBtn';
+      btn.className = 'logout-btn';
+      btn.textContent = '🔒 લૉગ આઉટ';
+      btn.onclick = logoutAdmin;
+      document.getElementById('adminTab').after(btn);
+    }
+  } else {
+    if (existing) existing.remove();
+  }
+}
+
+function handleAdminClick(el) {
+  if (isAdminLoggedIn()) {
+    showPage('admin', el);
+    updateLogoutBtn();
+  } else {
+    pendingAdminTab = el;
+    showLoginOverlay();
+  }
+}
+
+function showLoginOverlay() {
+  const attempts = getAttemptData();
+  if (attempts.locked && Date.now() < attempts.lockUntil) {
+    const mins = Math.ceil((attempts.lockUntil - Date.now()) / 60000);
+    showToast(`🔒 ${mins} મિનિટ રાહ જુઓ`, 'error');
+    return;
+  }
+  document.getElementById('adminPwInput').value = '';
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginAttempts').textContent = '';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('adminPwInput').focus(), 100);
+}
+
+function getAttemptData() {
+  try { return JSON.parse(localStorage.getItem('shakha_login_attempts') || '{"count":0,"locked":false,"lockUntil":0}'); }
+  catch(e) { return {count:0, locked:false, lockUntil:0}; }
+}
+
+function saveAttemptData(d) { localStorage.setItem('shakha_login_attempts', JSON.stringify(d)); }
+
+function doLogin() {
+  const pw = document.getElementById('adminPwInput').value;
+  const attempts = getAttemptData();
+
+  if (attempts.locked && Date.now() < attempts.lockUntil) {
+    const mins = Math.ceil((attempts.lockUntil - Date.now()) / 60000);
+    document.getElementById('loginError').textContent = `🔒 ${mins} મિનિટ પછી ફરી પ્રયાસ કરો.`;
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('loginBtn').disabled = true;
+    return;
+  }
+
+  if (pw === ADMIN_PASSWORD) {
+    saveAttemptData({count:0, locked:false, lockUntil:0});
+    setAdminLoggedIn();
+    document.getElementById('loginOverlay').classList.remove('show');
+    showPage('admin', pendingAdminTab);
+    updateLogoutBtn();
+    showToast('✅ એડમિન પ્રવેશ સફળ!');
+  } else {
+    attempts.count = (attempts.count || 0) + 1;
+    const remaining = MAX_ATTEMPTS - attempts.count;
+    if (remaining <= 0) {
+      attempts.locked = true;
+      attempts.lockUntil = Date.now() + LOCKOUT_MINUTES * 60 * 1000;
+      saveAttemptData(attempts);
+      document.getElementById('loginError').textContent = `🔒 ${LOCKOUT_MINUTES} મિનિટ માટે બ્લૉક.`;
+      document.getElementById('loginBtn').disabled = true;
+    } else {
+      saveAttemptData(attempts);
+      document.getElementById('loginError').textContent = `❌ ખોટો પાસવર્ડ! ${remaining} પ્રયાસ બાકી.`;
+      document.getElementById('loginAttempts').textContent = '';
+    }
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').focus();
+  }
+}
+
+function cancelLogin() {
+  document.getElementById('loginOverlay').classList.remove('show');
+}
+
+function togglePwVisibility() {
+  const inp = document.getElementById('adminPwInput');
+  const btn = document.getElementById('togglePwBtn');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁️'; }
+}
+// ===== END ADMIN AUTH =====
+
+loadData();
+updateLogoutBtn();
+</script>
+</body>
+</html>
